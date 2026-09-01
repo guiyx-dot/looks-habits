@@ -133,7 +133,7 @@ export function TemplatePage() {
                     value={item.hint ?? ''}
                     onChange={(e) => patch(item.id, { hint: e.target.value || undefined })}
                     placeholder="小字说明，可空"
-                    maxLength={24}
+                    maxLength={36}
                   />
                   <div className="tpl-meta">
                     <select
@@ -156,22 +156,7 @@ export function TemplatePage() {
                         </option>
                       ))}
                     </select>
-                    <label className="tpl-water">
-                      <input
-                        type="checkbox"
-                        checked={item.kind === 'water'}
-                        onChange={(e) => patch(item.id, { kind: e.target.checked ? 'water' : 'check' })}
-                      />
-                      记杯数
-                    </label>
                   </div>
-                  <input
-                    className="tpl-hint"
-                    value={(item.steps ?? []).map((step) => step.label).join('、')}
-                    onChange={(e) => patch(item.id, { steps: parseSteps(item.id, e.target.value) })}
-                    placeholder="细节步骤，用顿号分开"
-                    maxLength={40}
-                  />
                   <div className="tpl-actions">
                     <button type="button" className="text-btn" onClick={() => move(item.id, -1)}>
                       上移
@@ -207,22 +192,13 @@ export function TemplatePage() {
   )
 }
 
-function parseSteps(habitId: string, raw: string): Habit['steps'] {
-  const labels = raw
-    .split(/[、,，]/)
-    .map((part) => part.trim())
-    .filter(Boolean)
-  if (labels.length === 0) return undefined
-  return labels.map((label, i) => ({ id: `${habitId}-s${i}`, label }))
-}
-
 function cleanList(list: Habit[]): Habit[] {
   return list
     .map((item) => ({
       ...item,
       title: item.title.trim(),
       hint: item.hint?.trim() || undefined,
-      steps: item.steps && item.steps.length > 0 ? item.steps : undefined,
+      steps: undefined,
     }))
     .filter((item) => item.title.length > 0)
 }
