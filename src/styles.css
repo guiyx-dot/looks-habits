@@ -371,6 +371,7 @@ h2 {
   padding: 6px 8px;
   background: #fff;
   border: 1px solid var(--line);
+  z-index: 20;
 }
 
 .tabs button {
@@ -602,10 +603,12 @@ select {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0 16px;
+  gap: 12px;
+  padding: 10px 0 12px;
   border-top: 1px solid var(--line);
   position: sticky;
-  bottom: 72px;
+  bottom: calc(78px + env(safe-area-inset-bottom));
+  z-index: 4;
   background: var(--bg);
 }
 
