@@ -11,14 +11,12 @@ import {
   isHabitOn,
   removeExtra,
   scoresFor,
-  setCups,
   toggleExtra,
   toggleHabit,
   togglePeriodic,
-  toggleStep,
   useStore,
 } from './store'
-import { LAYER_LABEL, WATER_TARGET, emptyDay, type Habit } from './types'
+import { LAYER_LABEL, emptyDay, type Habit } from './types'
 
 type Props = {
   dateKey: string
@@ -207,7 +205,7 @@ export function TodayPage({ dateKey, todayKey, onShift, onToday }: Props) {
               const on = !!record?.periodic[item.id]
               return (
                 <li key={item.id} className="habit">
-                  <div className="habit-row">
+                  <div className="habit-row habit-row-plain">
                     <label className="habit-main">
                       <span className="habit-check">
                         <input
@@ -221,7 +219,6 @@ export function TodayPage({ dateKey, todayKey, onShift, onToday }: Props) {
                         <span className="habit-hint">{due ? item.dueLabel : item.waitLabel}</span>
                       </span>
                     </label>
-                    <span className="habit-more" />
                   </div>
                 </li>
               )
@@ -255,17 +252,11 @@ function useClock(active: boolean) {
 function HabitRow({ habit, dateKey }: { habit: Habit; dateKey: string }) {
   const store = useStore()
   const record = store.days[dateKey]
-  const [open, setOpen] = useState(false)
   const on = isHabitOn(record ?? emptyDay(), habit.id, dateKey)
-  const expandable = habit.kind === 'water' || (habit.steps && habit.steps.length > 0)
-
-  useEffect(() => {
-    setOpen(false)
-  }, [dateKey])
 
   return (
     <li className={`habit ${habit.layer === 'body' ? 'is-body' : ''}`}>
-      <div className="habit-row">
+      <div className="habit-row habit-row-plain">
         <label className="habit-main">
           <span className="habit-check">
             <input type="checkbox" checked={on} onChange={() => toggleHabit(dateKey, habit.id)} />
@@ -275,43 +266,7 @@ function HabitRow({ habit, dateKey }: { habit: Habit; dateKey: string }) {
             {habit.hint ? <span className="habit-hint">{habit.hint}</span> : null}
           </span>
         </label>
-        <span className="habit-more">
-          {expandable ? (
-            <button type="button" className="text-btn" onClick={() => setOpen((v) => !v)}>
-              {open ? '收起' : '细节'}
-            </button>
-          ) : null}
-        </span>
       </div>
-      {open && habit.kind === 'water' ? (
-        <div className="cups">
-          <button type="button" onClick={() => setCups(dateKey, (record?.cups ?? 0) - 1)}>
-            −
-          </button>
-          <span>
-            {record?.cups ?? 0} / {WATER_TARGET} 杯
-          </span>
-          <button type="button" onClick={() => setCups(dateKey, (record?.cups ?? 0) + 1)}>
-            +
-          </button>
-        </div>
-      ) : null}
-      {open && habit.steps ? (
-        <ul className="steps">
-          {habit.steps.map((step) => (
-            <li key={step.id}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={!!record?.steps[step.id]}
-                  onChange={() => toggleStep(dateKey, step.id)}
-                />
-                {step.label}
-              </label>
-            </li>
-          ))}
-        </ul>
-      ) : null}
     </li>
   )
 }
