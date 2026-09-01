@@ -260,6 +260,10 @@ h2 {
   align-items: start;
 }
 
+.habit-row-plain {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .habit-main {
   display: grid;
   grid-template-columns: 22px minmax(0, 1fr);
@@ -275,8 +279,7 @@ h2 {
   justify-content: center;
 }
 
-.habit-check input,
-.steps input {
+.habit-check input {
   width: 18px;
   height: 18px;
   flex: none;
@@ -326,36 +329,6 @@ h2 {
   min-height: var(--line-h);
   padding: 0;
   letter-spacing: 0.04em;
-}
-
-.cups {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 4px 0 10px 32px;
-}
-
-.cups button {
-  width: var(--tap);
-  height: var(--tap);
-  border-radius: 0;
-  border: 1px solid var(--line);
-  background: transparent;
-  font-size: 20px;
-}
-
-.steps {
-  list-style: none;
-  padding: 0 8px 8px 32px;
-}
-
-.steps li label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 36px;
-  font-size: 14px;
 }
 
 .tabs {
@@ -578,15 +551,6 @@ select {
   flex-wrap: wrap;
   gap: 10px 14px;
   align-items: center;
-}
-
-.tpl-water {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: var(--muted);
-  min-height: 32px;
 }
 
 .tpl-actions {
