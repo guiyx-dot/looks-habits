@@ -28,7 +28,9 @@ export function App() {
         {tab === 'month' ? (
           <MonthPage dateKey={dateKey} todayKey={todayKey} onPick={(key) => { setDateKey(key); setTab('today') }} />
         ) : null}
-        {tab === 'template' ? <TemplatePage /> : null}
+        <div hidden={tab !== 'template'}>
+          <TemplatePage />
+        </div>
       </main>
       <nav className="tabs">
         <button type="button" className={tab === 'today' ? 'on' : ''} onClick={() => setTab('today')}>
