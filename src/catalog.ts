@@ -190,6 +190,11 @@ export function sortHabits(list: Habit[]): Habit[] {
   })
 }
 
+/** 按时段排，同一时段内保持模版里的顺序。 */
+export function orderBySlot(list: Habit[]): Habit[] {
+  return [...list].sort((a, b) => SLOT_ORDER[a.slot] - SLOT_ORDER[b.slot])
+}
+
 export function defaultWork(): Habit[] {
   return cloneHabits(WORK)
 }
