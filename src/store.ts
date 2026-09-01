@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { dayKind, monthKey, toDateKey } from './calendar'
-import { cloneHabits, defaultPair, layerWeight, sortHabits } from './catalog'
+import { cloneHabits, defaultPair, layerWeight, orderBySlot } from './catalog'
 import {
   emptyDay,
   WATER_TARGET,
@@ -65,8 +65,14 @@ let state = load()
 const listeners = new Set<() => void>()
 
 function emit() {
-  localStorage.setItem(KEY, JSON.stringify(state))
+  let ok = true
+  try {
+    localStorage.setItem(KEY, JSON.stringify(state))
+  } catch {
+    ok = false
+  }
   listeners.forEach((fn) => fn())
+  return ok
 }
 
 function subscribe(fn: () => void) {
@@ -102,18 +108,18 @@ export function pairForDate(dateKey: string): TemplatePair {
 
 export function habitsForDate(dateKey: string, kind: DayKind = dayKind(dateKey)): Habit[] {
   const pair = pairForDate(dateKey)
-  return sortHabits(kind === 'work' ? pair.work : pair.rest)
+  return orderBySlot(kind === 'work' ? pair.work : pair.rest)
 }
 
 function habitOnDate(dateKey: string, habitId: string): Habit | undefined {
   return habitsForDate(dateKey).find((item) => item.id === habitId)
 }
 
-export function saveTemplates(work: Habit[], rest: Habit[]) {
+export function saveTemplates(work: Habit[], rest: Habit[]): boolean {
   const today = toDateKey(new Date())
   const next: TemplatePair = {
-    work: sortHabits(cloneHabits(work)),
-    rest: sortHabits(cloneHabits(rest)),
+    work: orderBySlot(cloneHabits(work)),
+    rest: orderBySlot(cloneHabits(rest)),
   }
   const log = [...state.templateLog]
   const last = log[log.length - 1]
@@ -123,7 +129,7 @@ export function saveTemplates(work: Habit[], rest: Habit[]) {
     log.push({ from: today, work: cloneHabits(next.work), rest: cloneHabits(next.rest) })
   }
   state = { ...state, templates: next, templateLog: log }
-  emit()
+  return emit()
 }
 
 function dayOf(key: string): DayRecord {
