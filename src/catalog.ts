@@ -24,13 +24,6 @@ const WORK: Habit[] = [
     layer: 'skin',
     slot: 'morning',
     kind: 'check',
-    steps: [
-      { id: 'am-sunscreen-clean', label: '洁面' },
-      { id: 'am-sunscreen-moist', label: '保湿' },
-      { id: 'am-sunscreen-face', label: '脸' },
-      { id: 'am-sunscreen-hands', label: '手' },
-      { id: 'am-sunscreen-neck', label: '脖子' },
-    ],
   },
   {
     id: 'day-water',
@@ -47,11 +40,6 @@ const WORK: Habit[] = [
     layer: 'body',
     slot: 'day',
     kind: 'check',
-    steps: [
-      { id: 'day-desk-breath', label: '腹式呼吸' },
-      { id: 'day-desk-stretch', label: '肩颈、腰' },
-      { id: 'day-desk-walk', label: '走一圈' },
-    ],
   },
   {
     id: 'day-snack',
@@ -98,11 +86,6 @@ const WORK: Habit[] = [
     layer: 'skin',
     slot: 'day',
     kind: 'check',
-    steps: [
-      { id: 'day-spf-face', label: '脸' },
-      { id: 'day-spf-hands', label: '手' },
-      { id: 'day-spf-neck', label: '脖子' },
-    ],
   },
   {
     id: 'pm-move',
@@ -111,10 +94,6 @@ const WORK: Habit[] = [
     layer: 'body',
     slot: 'evening',
     kind: 'check',
-    steps: [
-      { id: 'pm-move-walk', label: '散步' },
-      { id: 'pm-move-stretch', label: '拉伸' },
-    ],
   },
   {
     id: 'pm-dinner',
@@ -139,11 +118,6 @@ const WORK: Habit[] = [
     layer: 'skin',
     slot: 'evening',
     kind: 'check',
-    steps: [
-      { id: 'pm-skin-clean', label: '洁面' },
-      { id: 'pm-skin-care', label: '护理' },
-      { id: 'pm-skin-moist', label: '保湿' },
-    ],
   },
   {
     id: 'pm-hair',
