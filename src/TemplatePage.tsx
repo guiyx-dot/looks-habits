@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { cloneHabits, defaultPair, newHabitId, slotLabel, sortHabits } from './catalog'
+import { useRef, useState } from 'react'
+import { cloneHabits, defaultPair, newHabitId, slotLabel } from './catalog'
 import { saveTemplates, useStore } from './store'
 import { LAYER_LABEL, type DayKind, type Habit, type Layer, type Slot } from './types'
 
@@ -12,28 +12,46 @@ export function TemplatePage() {
   const [work, setWork] = useState(() => cloneHabits(store.templates.work))
   const [rest, setRest] = useState(() => cloneHabits(store.templates.rest))
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState('')
+  const workRef = useRef(work)
+  const restRef = useRef(rest)
+  workRef.current = work
+  restRef.current = rest
   const list = kind === 'work' ? work : rest
-  const setList = kind === 'work' ? setWork : setRest
 
   function patch(id: string, next: Partial<Habit>) {
-    setList(list.map((item) => (item.id === id ? { ...item, ...next } : item)))
+    const apply = (items: Habit[]) => items.map((item) => (item.id === id ? { ...item, ...next } : item))
+    if (kind === 'work') setWork(apply)
+    else setRest(apply)
     setSaved(false)
+    setError('')
   }
 
   function remove(id: string) {
-    setList(list.filter((item) => item.id !== id))
+    if (kind === 'work') setWork((items) => items.filter((item) => item.id !== id))
+    else setRest((items) => items.filter((item) => item.id !== id))
     setSaved(false)
+    setError('')
   }
 
   function move(id: string, dir: -1 | 1) {
-    const index = list.findIndex((item) => item.id === id)
-    const target = index + dir
-    if (index < 0 || target < 0 || target >= list.length) return
-    const next = [...list]
-    const [row] = next.splice(index, 1)
-    next.splice(target, 0, row)
-    setList(next)
+    const apply = (items: Habit[]) => {
+      const slot = items.find((item) => item.id === id)?.slot
+      if (!slot) return items
+      const inSlot = items.filter((item) => item.slot === slot)
+      const index = inSlot.findIndex((item) => item.id === id)
+      const target = index + dir
+      if (index < 0 || target < 0 || target >= inSlot.length) return items
+      const nextSlot = [...inSlot]
+      const [row] = nextSlot.splice(index, 1)
+      nextSlot.splice(target, 0, row)
+      let cursor = 0
+      return items.map((item) => (item.slot === slot ? nextSlot[cursor++] : item))
+    }
+    if (kind === 'work') setWork(apply)
+    else setRest(apply)
     setSaved(false)
+    setError('')
   }
 
   function add(slot: Slot) {
@@ -44,25 +62,39 @@ export function TemplatePage() {
       slot,
       kind: 'check',
     }
-    setList([...list, item])
+    if (kind === 'work') setWork((items) => [...items, item])
+    else setRest((items) => [...items, item])
     setSaved(false)
+    setError('')
   }
 
   function save() {
-    const cleanedWork = cleanList(work)
-    const cleanedRest = cleanList(rest)
-    if (cleanedWork.length === 0 || cleanedRest.length === 0) return
-    saveTemplates(cleanedWork, cleanedRest)
+    const cleanedWork = cleanList(workRef.current)
+    const cleanedRest = cleanList(restRef.current)
+    if (cleanedWork.length === 0 || cleanedRest.length === 0) {
+      setError('工作日和休息日都至少留一项，才能保存。')
+      setSaved(false)
+      return
+    }
+    const ok = saveTemplates(cleanedWork, cleanedRest)
     setWork(cloneHabits(cleanedWork))
     setRest(cloneHabits(cleanedRest))
+    if (!ok) {
+      setError('这次没能写进手机存储，换个浏览器再试，或先别清缓存。')
+      setSaved(false)
+      return
+    }
+    setError('')
     setSaved(true)
   }
 
   function restore() {
+    if (!window.confirm('恢复成默认清单？还没保存的修改会丢掉。')) return
     const defaults = defaultPair()
     setWork(defaults.work)
     setRest(defaults.rest)
     setSaved(false)
+    setError('')
   }
 
   return (
@@ -169,7 +201,8 @@ export function TemplatePage() {
           {saved ? '已保存' : '保存'}
         </button>
       </div>
-      <p className="card-note">恢复默认后也要按保存，才会从今天起生效。</p>
+      {error ? <p className="card-note">{error}</p> : null}
+      <p className="card-note">看到「已保存」才算记下。恢复默认要再按一次保存，才会从今天起生效。</p>
     </div>
   )
 }
@@ -184,14 +217,12 @@ function parseSteps(habitId: string, raw: string): Habit['steps'] {
 }
 
 function cleanList(list: Habit[]): Habit[] {
-  return sortHabits(
-    list
-      .map((item) => ({
-        ...item,
-        title: item.title.trim(),
-        hint: item.hint?.trim() || undefined,
-        steps: item.steps && item.steps.length > 0 ? item.steps : undefined,
-      }))
-      .filter((item) => item.title.length > 0),
-  )
+  return list
+    .map((item) => ({
+      ...item,
+      title: item.title.trim(),
+      hint: item.hint?.trim() || undefined,
+      steps: item.steps && item.steps.length > 0 ? item.steps : undefined,
+    }))
+    .filter((item) => item.title.length > 0)
 }
